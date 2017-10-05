@@ -2,8 +2,9 @@
 
 import logging
 import sys
-from ev3dev.auto import OUTPUT_A, OUTPUT_B, OUTPUT_C
-from ev3dev.helper import RemoteControlledTank, MediumMotor
+from ev3dev.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
+from ev3dev.control.rc_tank import RemoteControlledTank
+
 
 class EV3D4RemoteControlled(RemoteControlledTank):
 
@@ -18,11 +19,18 @@ class EV3D4RemoteControlled(RemoteControlledTank):
         self.medium_motor.reset()
 
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)5s: %(message)s')
-log = logging.getLogger(__name__)
+if __name__ == '__main__':
 
-log.info("Starting EV3D4")
-ev3d4 = EV3D4RemoteControlled()
-ev3d4.main()
-log.info("Exiting EV3D4")
+    # Change level to logging.INFO to make less chatty
+    logging.basicConfig(level=logging.DEBUG,
+                        format="%(asctime)s %(levelname)5s %(filename)s:%(lineno)5s - %(funcName)25s(): %(message)s")
+    log = logging.getLogger(__name__)
+
+    # Color the errors and warnings in red
+    logging.addLevelName(logging.ERROR, "\033[91m  %s\033[0m" % logging.getLevelName(logging.ERROR))
+    logging.addLevelName(logging.WARNING, "\033[91m%s\033[0m" % logging.getLevelName(logging.WARNING))
+
+    log.info("Starting EV3D4")
+    ev3d4 = EV3D4RemoteControlled()
+    ev3d4.main()
+    log.info("Exiting EV3D4")
