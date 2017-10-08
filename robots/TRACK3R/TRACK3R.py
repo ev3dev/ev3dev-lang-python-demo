@@ -2,8 +2,8 @@
 
 import logging
 import sys
-from ev3dev.auto import OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D
-from ev3dev.helper import RemoteControlledTank, MediumMotor
+from ev3dev.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
+from ev3dev.control.rc_tank import RemoteControlledTank
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class TRACK3RWithBallShooter(TRACK3R):
 
     def __init__(self, medium_motor=OUTPUT_A, left_motor=OUTPUT_B, right_motor=OUTPUT_C):
         TRACK3R.__init__(self, medium_motor, left_motor, right_motor)
-        self.remote.on_beacon = self.fire_ball
+        self.remote.on_channel1_beacon = self.fire_ball
 
     def fire_ball(self, state):
         if state:
@@ -44,7 +44,7 @@ class TRACK3RWithSpinner(TRACK3R):
 
     def __init__(self, medium_motor=OUTPUT_A, left_motor=OUTPUT_B, right_motor=OUTPUT_C):
         TRACK3R.__init__(self, medium_motor, left_motor, right_motor)
-        self.remote.on_beacon = self.spinner
+        self.remote.on_channel1_beacon = self.spinner
 
     def spinner(self, state):
         if state:
@@ -57,7 +57,7 @@ class TRACK3RWithClaw(TRACK3R):
 
     def __init__(self, medium_motor=OUTPUT_A, left_motor=OUTPUT_B, right_motor=OUTPUT_C):
         TRACK3R.__init__(self, medium_motor, left_motor, right_motor)
-        self.remote.on_beacon = self.move_claw
+        self.remote.on_channel1_beacon = self.move_claw
 
     def move_claw(self, state):
         if state:
