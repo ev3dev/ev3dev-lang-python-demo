@@ -67,11 +67,11 @@ def roll(motor, led_group, direction):
         if state:
             # Roll when button is pressed
             motor.run_forever(speed_sp=600*direction)
-            leds.set_color(led_group, direction > 0)
+            leds.set_color(led_group, 'GREEN')
         else:
             # Stop otherwise
             motor.stop(stop_action='brake')
-            leds.set(led_group, brightness_pct=0)
+            leds.all_off()
 
     return on_press
 
@@ -80,6 +80,7 @@ rc.on_channel1_top_left = roll(lmotor, 'LEFT',   1)
 rc.on_channel1_bottom_left = roll(lmotor, 'LEFT',  -1)
 rc.on_channel1_top_right = roll(rmotor, 'RIGHT',  1)
 rc.on_channel1_bottom_right = roll(rmotor, 'RIGHT', -1)
+print("Robot Starting")
 
 # Enter event processing loop
 while not button.any():
