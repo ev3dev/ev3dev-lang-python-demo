@@ -33,7 +33,6 @@ class MindCuber(object):
     rotate_speed = 400
     flip_speed = 300
     flip_speed_push = 400
-    corner_to_edge_diff = 60
 
     def __init__(self):
         self.shutdown = False
@@ -43,12 +42,28 @@ class MindCuber(object):
         self.color_sensor = ColorSensor()
         self.color_sensor.mode = self.color_sensor.MODE_RGB_RAW
         self.infrared_sensor = InfraredSensor()
-        self.cube = {}
         self.init_motors()
         self.state = ['U', 'D', 'F', 'L', 'B', 'R']
         self.rgb_solver = None
         signal.signal(signal.SIGTERM, self.signal_term_handler)
         signal.signal(signal.SIGINT, self.signal_int_handler)
+
+        filename_max_rgb = 'max_rgb.txt'
+
+        if os.path.exists(filename_max_rgb):
+            with open(filename_max_rgb, 'r') as fh:
+                for line in fh:
+                    (color, value) = line.strip().split()
+
+                    if color == 'red':
+                        self.color_sensor.red_max = int(value)
+                        log.info("red max is %d" % self.color_sensor.red_max)
+                    elif color == 'green':
+                        self.color_sensor.green_max = int(value)
+                        log.info("green max is %d" % self.color_sensor.green_max)
+                    elif color == 'blue':
+                        self.color_sensor.blue_max = int(value)
+                        log.info("blue max is %d" % self.color_sensor.blue_max)
 
     def init_motors(self):
 
@@ -60,14 +75,14 @@ class MindCuber(object):
 
         log.info("Initialize flipper %s" % self.flipper)
         self.flipper.run_forever(speed_sp=-50, stop_action='hold')
-        self.flipper.wait_for_stop()
+        self.flipper.wait_until_not_moving()
         self.flipper.stop()
         self.flipper.reset()
         self.flipper.stop(stop_action='hold')
 
         log.info("Initialize colorarm %s" % self.colorarm)
         self.colorarm.run_forever(speed_sp=500, stop_action='hold')
-        self.colorarm.wait_for_stop()
+        self.colorarm.wait_until_not_moving()
         self.colorarm.stop()
         self.colorarm.reset()
         self.colorarm.stop(stop_action='hold')
@@ -82,9 +97,6 @@ class MindCuber(object):
 
         if self.rgb_solver:
             self.rgb_solver.shutdown = True
-
-        for x in (self.flipper, self.turntable, self.colorarm):
-            x.shutdown = True
 
         for x in (self.flipper, self.turntable, self.colorarm):
             x.stop(stop_action='brake')
@@ -112,9 +124,8 @@ class MindCuber(object):
                                       speed_sp=MindCuber.rotate_speed,
                                       stop_action='hold',
                                       ramp_up_sp=0)
-        self.turntable.wait_for_running()
-        self.turntable.wait_for_position(final_pos)
-        self.turntable.wait_for_stop()
+        self.turntable.wait_until('running')
+        self.turntable.wait_until_not_moving()
 
         if nb >= 1:
             for i in range(nb):
@@ -151,17 +162,15 @@ class MindCuber(object):
                                       speed_sp=MindCuber.rotate_speed,
                                       stop_action='hold',
                                       ramp_up_sp=0)
-        self.turntable.wait_for_running()
-        self.turntable.wait_for_position(temp_pos)
-        self.turntable.wait_for_stop()
+        self.turntable.wait_until('running')
+        self.turntable.wait_until_not_moving()
 
         self.turntable.run_to_abs_pos(position_sp=final_pos,
                                       speed_sp=int(MindCuber.rotate_speed/4),
                                       stop_action='hold',
                                       ramp_up_sp=0)
-        self.turntable.wait_for_running()
-        self.turntable.wait_for_position(final_pos, stall_ok=True)
-        self.turntable.wait_for_stop()
+        self.turntable.wait_until('running')
+        self.turntable.wait_until_not_moving()
 
     def rotate_cube_blocked_1(self):
         self.rotate_cube_blocked(1, 1)
@@ -182,9 +191,8 @@ class MindCuber(object):
             self.flipper.run_to_abs_pos(position_sp=MindCuber.hold_cube_pos,
                                         ramp_down_sp=400,
                                         speed_sp=speed)
-            self.flipper.wait_for_running()
-            self.flipper.wait_for_position(MindCuber.hold_cube_pos)
-            self.flipper.wait_for_stop()
+            self.flipper.wait_until('running')
+            self.flipper.wait_until_not_moving()
             sleep(0.05)
 
     def flipper_away(self, speed=300):
@@ -195,13 +203,8 @@ class MindCuber(object):
         self.flipper.run_to_abs_pos(position_sp=0,
                                     ramp_down_sp=400,
                                     speed_sp=speed)
-        self.flipper.wait_for_running()
-
-        try:
-            self.flipper.wait_for_position(0)
-            self.flipper.wait_for_stop()
-        except MotorStall:
-            self.flipper.stop()
+        self.flipper.wait_until('running')
+        self.flipper.wait_until_not_moving()
 
     def flip(self):
         """
@@ -225,9 +228,8 @@ class MindCuber(object):
                                     ramp_up_sp=200,
                                     ramp_down_sp=0,
                                     speed_sp=self.flip_speed)
-        self.flipper.wait_for_running()
-        self.flipper.wait_for_position(190)
-        self.flipper.wait_for_stop()
+        self.flipper.wait_until('running')
+        self.flipper.wait_until_not_moving()
         sleep(0.05)
 
         # At this point the cube is at an angle, push it forward to
@@ -236,9 +238,8 @@ class MindCuber(object):
                                     ramp_up_sp=200,
                                     ramp_down_sp=400,
                                     speed_sp=self.flip_speed_push)
-        self.flipper.wait_for_running()
-        self.flipper.wait_for_position(MindCuber.hold_cube_pos)
-        self.flipper.wait_for_stop()
+        self.flipper.wait_until('running')
+        self.flipper.wait_until_not_moving()
         sleep(0.05)
 
         transformation = [2, 4, 1, 3, 0, 5]
@@ -249,9 +250,8 @@ class MindCuber(object):
         self.colorarm.run_to_abs_pos(position_sp=-750,
                                      speed_sp=600,
                                      stop_action='hold')
-        self.colorarm.wait_for_running()
-        self.colorarm.wait_for_position(-750)
-        self.colorarm.wait_for_stop()
+        self.colorarm.wait_until('running')
+        self.colorarm.wait_until_not_moving()
 
     def colorarm_corner(self, square_index):
         log.info("colorarm_corner(%d)" % square_index)
@@ -295,63 +295,15 @@ class MindCuber(object):
         log.info("colorarm_remove()")
         self.colorarm.run_to_abs_pos(position_sp=0,
                                      speed_sp=600)
-        self.colorarm.wait_for_running()
-        try:
-            self.colorarm.wait_for_position(0)
-            self.colorarm.wait_for_stop()
-        except MotorStall:
-            self.colorarm.stop()
+        self.colorarm.wait_until('running')
+        self.colorarm.wait_until_not_moving()
 
     def colorarm_remove_halfway(self):
         log.info("colorarm_remove_halfway()")
         self.colorarm.run_to_abs_pos(position_sp=-400,
                                      speed_sp=600)
-        self.colorarm.wait_for_running()
-        self.colorarm.wait_for_position(-400)
-        self.colorarm.wait_for_stop()
-
-    def scan_middle(self, face_number):
-        log.info("scan_middle() %d/6" % face_number)
-
-        if self.flipper.position > 35:
-            self.flipper_away()
-
-        self.colorarm_middle()
-        log.info(self.color_sensor.rgb())
-        self.colorarm_remove_halfway()
-
-    def scan_middles(self):
-        """
-        Used once to get the RGB values of the middle squares to
-        populate the crayola_colors in rubiks_rgb_solver.py
-        """
-        log.info("scan_middle()")
-        self.colors = {}
-        self.k = 0
-        self.scan_middle(1)
-        raw_input('Paused')
-
-        self.flip()
-        self.scan_middle(2)
-        raw_input('Paused')
-
-        self.flip()
-        self.scan_middle(3)
-        raw_input('Paused')
-
-        self.rotate_cube(-1, 1)
-        self.flip()
-        self.scan_middle(4)
-        raw_input('Paused')
-
-        self.rotate_cube(1, 1)
-        self.flip()
-        self.scan_middle(5)
-        raw_input('Paused')
-
-        self.flip()
-        self.scan_middle(6)
-        raw_input('Paused')
+        self.colorarm.wait_until('running')
+        self.colorarm.wait_until_not_moving()
 
     def scan_face(self, face_number):
         log.info("scan_face() %d/6" % face_number)
@@ -363,7 +315,7 @@ class MindCuber(object):
             self.flipper_away()
 
         self.colorarm_middle()
-        self.colors[int(MindCuber.scan_order[self.k])] = tuple(self.color_sensor.rgb())
+        self.colors[int(MindCuber.scan_order[self.k])] = self.color_sensor.rgb
 
         self.k += 1
         i = 1
@@ -374,13 +326,14 @@ class MindCuber(object):
         self.turntable.run_to_abs_pos(position_sp=1080,
                                       speed_sp=MindCuber.rotate_speed,
                                       stop_action='hold')
+        self.turntable.wait_until('running')
 
         while True:
             current_position = self.turntable.position
 
             # 135 is 1/8 of full rotation
             if current_position >= (i * 135):
-                current_color = tuple(self.color_sensor.rgb())
+                current_color = self.color_sensor.rgb
                 self.colors[int(MindCuber.scan_order[self.k])] = current_color
                 # log.info("%s: i %d, current_position %d, current_color %s" %
                 #          (self.turntable, i, current_position, current_color))
@@ -411,7 +364,7 @@ class MindCuber(object):
         if i < 9:
             raise ScanError('i is %d..should be 9' % i)
 
-        self.turntable.wait_for_position(1080)
+        self.turntable.wait_until_not_moving()
         self.turntable.stop()
         self.turntable.reset()
         log.info("\n")
@@ -443,7 +396,7 @@ class MindCuber(object):
             return
 
         log.info("RGB json:\n%s\n" % json.dumps(self.colors))
-        self.rgb_solver = MindCuberColorSolverGeneric(3)
+        self.rgb_solver = RubiksColorSolverGeneric(3)
         self.rgb_solver.enter_scan_data(self.colors)
         self.rgb_solver.crunch_colors()
         self.cube_kociemba = self.rgb_solver.cube_for_kociemba_strict()
@@ -459,7 +412,7 @@ class MindCuber(object):
         self.flip()
         self.flipper_away()
         self.rotate_cube(1, 1)
-        raw_input('Paused')
+        input('Paused')
         '''
 
     def move(self, face_down):
@@ -514,7 +467,7 @@ class MindCuber(object):
 
     def resolve(self):
 
-        if rub.shutdown:
+        if self.shutdown:
             return
 
         cmd = ['kociemba', ''.join(map(str, self.cube_kociemba))]
