@@ -34,19 +34,18 @@
 from time   import sleep
 from random import choice, randint
 
-from ev3dev.auto import *
+from ev3dev.motor import OUTPUT_B, OUTPUT_C, LargeMotor
+from ev3dev.sensor.lego import InfraredSensor, TouchSensor
+from ev3dev.button import Button
+from ev3dev.led import Leds
+from ev3dev.sound import Sound
 
 # Connect two large motors on output ports B and C:
 motors = [LargeMotor(address) for address in (OUTPUT_B, OUTPUT_C)]
 
-# Every device in ev3dev has `connected` property. Use it to check that the
-# device has actually been connected.
-assert all([m.connected for m in motors]), \
-    "Two large motors should be connected to ports B and C"
-
 # Connect infrared and touch sensors.
-ir = InfraredSensor(); assert ir.connected
-ts = TouchSensor();    assert ts.connected
+ir = InfraredSensor()
+ts = TouchSensor()
 
 print('Robot Starting')
 
@@ -67,11 +66,14 @@ def backup():
     """
 
     # Sound backup alarm.
-    Sound.tone([(1000, 500, 500)] * 3)
+    spkr = Sound()
+    spkr.tone([(1000, 500, 500)] * 3)
 
     # Turn backup lights on:
-    for light in (Leds.LEFT, Leds.RIGHT):
-        Leds.set_color(light, Leds.RED)
+    leds = Leds()
+
+    for light in ('LEFT', 'RIGHT'):
+        leds.set_color(light, 'RED')
 
     # Stop both motors and reverse for 1.5 seconds.
     # `run-timed` command will return immediately, so we will have to wait
@@ -86,8 +88,9 @@ def backup():
         sleep(0.1)
 
     # Turn backup lights off:
-    for light in (Leds.LEFT, Leds.RIGHT):
-        Leds.set_color(light, Leds.GREEN)
+    for light in ('LEFT', 'RIGHT'):
+        leds.set_color(light, 'GREEN')
+
 
 def turn():
     """
