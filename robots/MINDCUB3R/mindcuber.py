@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from ev3dev.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C
+from ev3dev.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedDPS
 from ev3dev.sensor.lego import ColorSensor, InfraredSensor
 from pprint import pformat
 from rubikscolorresolver import RubiksColorSolverGeneric
@@ -74,12 +74,12 @@ class MindCuber(object):
             x.reset()
 
         log.info("Initialize flipper %s" % self.flipper)
-        self.flipper.on(('dps', -50), block=True)
+        self.flipper.on(SpeedDPS(-50), block=True)
         self.flipper.off()
         self.flipper.reset()
 
         log.info("Initialize colorarm %s" % self.colorarm)
-        self.colorarm.on(('dps', 500), block=True)
+        self.colorarm.on(SpeedDPS(500), block=True)
         self.colorarm.off()
         self.colorarm.reset()
 
@@ -118,7 +118,7 @@ class MindCuber(object):
         if self.flipper.position > 35:
             self.flipper_away()
 
-        self.turntable.on_to_position(('dps', MindCuber.rotate_speed), final_pos)
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed), final_pos)
 
         if nb >= 1:
             for i in range(nb):
@@ -151,8 +151,8 @@ class MindCuber(object):
         log.info("rotate_cube_blocked() direction %s nb %s, current pos %s, temp pos %s, final pos %s" %
                  (direction, nb, current_pos, temp_pos, final_pos))
 
-        self.turntable.on_to_position(('dps', MindCuber.rotate_speed), temp_pos)
-        self.turntable.on_to_position(('dps', MindCuber.rotate_speed/4), final_pos)
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed), temp_pos)
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed/4), final_pos)
 
     def rotate_cube_blocked_1(self):
         self.rotate_cube_blocked(1, 1)
@@ -172,7 +172,7 @@ class MindCuber(object):
             current_position >= MindCuber.hold_cube_pos + 10):
 
             self.flipper.ramp_down_sp=400
-            self.flipper.on_to_position(('dps', speed), MindCuber.hold_cube_pos)
+            self.flipper.on_to_position(SpeedDPS(speed), MindCuber.hold_cube_pos)
             sleep(0.05)
 
     def flipper_away(self, speed=300):
@@ -181,7 +181,7 @@ class MindCuber(object):
         """
         log.info("flipper_away()")
         self.flipper.ramp_down_sp = 400
-        self.flipper.on_to_position(('dps', speed), 0)
+        self.flipper.on_to_position(SpeedDPS(speed), 0)
 
     def flip(self):
         """
@@ -203,14 +203,14 @@ class MindCuber(object):
         # Grab the cube and pull back
         self.flipper.ramp_up_sp = 200
         self.flipper.ramp_down_sp = 0
-        self.flipper.on_to_position(('dps', self.flip_speed), 190)
+        self.flipper.on_to_position(SpeedDPS(self.flip_speed), 190)
         sleep(0.05)
 
         # At this point the cube is at an angle, push it forward to
         # drop it back down in the turntable
         self.flipper.ramp_up_sp = 200
         self.flipper.ramp_down_sp = 400
-        self.flipper.on_to_position(('dps', self.flip_speed_push), MindCuber.hold_cube_pos)
+        self.flipper.on_to_position(SpeedDPS(self.flip_speed_push), MindCuber.hold_cube_pos)
         sleep(0.05)
 
         transformation = [2, 4, 1, 3, 0, 5]
@@ -218,7 +218,7 @@ class MindCuber(object):
 
     def colorarm_middle(self):
         log.info("colorarm_middle()")
-        self.colorarm.on_to_position(('dps', 600), -750)
+        self.colorarm.on_to_position(SpeedDPS(600), -750)
 
     def colorarm_corner(self, square_index):
         log.info("colorarm_corner(%d)" % square_index)
@@ -236,7 +236,7 @@ class MindCuber(object):
             raise ScanError("colorarm_corner was given unsupported square_index %d" % square_index)
 
         # dwalton - block here
-        self.colorarm.on_to_position(('dps', 600), position_target)
+        self.colorarm.on_to_position(SpeedDPS(600), position_target)
 
     def colorarm_edge(self, square_index):
         log.info("colorarm_edge(%d)" % square_index)
@@ -254,15 +254,15 @@ class MindCuber(object):
             raise ScanError("colorarm_edge was given unsupported square_index %d" % square_index)
 
         # dwalton - block here
-        self.colorarm.on_to_position(('dps', 600), position_target)
+        self.colorarm.on_to_position(SpeedDPS(600), position_target)
 
     def colorarm_remove(self):
         log.info("colorarm_remove()")
-        self.colorarm.on_to_position(('dps', 600), 0)
+        self.colorarm.on_to_position(SpeedDPS(600), 0)
 
     def colorarm_remove_halfway(self):
         log.info("colorarm_remove_halfway()")
-        self.colorarm.on_to_position(('dps', 600), -400)
+        self.colorarm.on_to_position(SpeedDPS(600), -400)
 
     def scan_face(self, face_number):
         log.info("scan_face() %d/6" % face_number)
@@ -282,7 +282,7 @@ class MindCuber(object):
 
         # The gear ratio is 3:1 so 1080 is one full rotation
         self.turntable.reset()
-        self.turntable.on_to_position(('dps', MindCuber.rotate_speed), 1080, block=False)
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed), 1080, block=False)
         self.turntable.wait_until('running')
 
         while True:
