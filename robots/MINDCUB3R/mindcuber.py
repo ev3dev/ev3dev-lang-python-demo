@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from ev3dev.auto import OUTPUT_A, OUTPUT_B, OUTPUT_C, InfraredSensor
-from ev3dev.helper import LargeMotor, MediumMotor, ColorSensor, MotorStall
+from ev3dev.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedDPS
+from ev3dev.sensor.lego import ColorSensor, InfraredSensor
 from pprint import pformat
 from rubikscolorresolver import RubiksColorSolverGeneric
 from subprocess import check_output
@@ -20,7 +20,7 @@ class ScanError(Exception):
     pass
 
 
-class Rubiks(object):
+class MindCuber(object):
     scan_order = [
         5, 9, 6, 3, 2, 1, 4, 7, 8,
         23, 27, 24, 21, 20, 19, 22, 25, 26,
@@ -33,7 +33,6 @@ class Rubiks(object):
     rotate_speed = 400
     flip_speed = 300
     flip_speed_push = 400
-    corner_to_edge_diff = 60
 
     def __init__(self):
         self.shutdown = False
@@ -43,12 +42,28 @@ class Rubiks(object):
         self.color_sensor = ColorSensor()
         self.color_sensor.mode = self.color_sensor.MODE_RGB_RAW
         self.infrared_sensor = InfraredSensor()
-        self.cube = {}
         self.init_motors()
         self.state = ['U', 'D', 'F', 'L', 'B', 'R']
         self.rgb_solver = None
         signal.signal(signal.SIGTERM, self.signal_term_handler)
         signal.signal(signal.SIGINT, self.signal_int_handler)
+
+        filename_max_rgb = 'max_rgb.txt'
+
+        if os.path.exists(filename_max_rgb):
+            with open(filename_max_rgb, 'r') as fh:
+                for line in fh:
+                    (color, value) = line.strip().split()
+
+                    if color == 'red':
+                        self.color_sensor.red_max = int(value)
+                        log.info("red max is %d" % self.color_sensor.red_max)
+                    elif color == 'green':
+                        self.color_sensor.green_max = int(value)
+                        log.info("green max is %d" % self.color_sensor.green_max)
+                    elif color == 'blue':
+                        self.color_sensor.blue_max = int(value)
+                        log.info("blue max is %d" % self.color_sensor.blue_max)
 
     def init_motors(self):
 
@@ -59,22 +74,18 @@ class Rubiks(object):
             x.reset()
 
         log.info("Initialize flipper %s" % self.flipper)
-        self.flipper.run_forever(speed_sp=-50, stop_action='hold')
-        self.flipper.wait_for_stop()
-        self.flipper.stop()
+        self.flipper.on(SpeedDPS(-50), block=True)
+        self.flipper.off()
         self.flipper.reset()
-        self.flipper.stop(stop_action='hold')
 
         log.info("Initialize colorarm %s" % self.colorarm)
-        self.colorarm.run_forever(speed_sp=500, stop_action='hold')
-        self.colorarm.wait_for_stop()
-        self.colorarm.stop()
+        self.colorarm.on(SpeedDPS(500), block=True)
+        self.colorarm.off()
         self.colorarm.reset()
-        self.colorarm.stop(stop_action='hold')
 
         log.info("Initialize turntable %s" % self.turntable)
+        self.turntable.off()
         self.turntable.reset()
-        self.turntable.stop(stop_action='hold')
 
     def shutdown_robot(self):
         log.info('Shutting down')
@@ -84,10 +95,9 @@ class Rubiks(object):
             self.rgb_solver.shutdown = True
 
         for x in (self.flipper, self.turntable, self.colorarm):
-            x.shutdown = True
-
-        for x in (self.flipper, self.turntable, self.colorarm):
-            x.stop(stop_action='brake')
+            # We are shutting down so do not 'hold' the motors
+            x.stop_action = 'brake'
+            x.off(False)
 
     def signal_term_handler(self, signal, frame):
         log.error('Caught SIGTERM')
@@ -108,13 +118,7 @@ class Rubiks(object):
         if self.flipper.position > 35:
             self.flipper_away()
 
-        self.turntable.run_to_abs_pos(position_sp=final_pos,
-                                      speed_sp=Rubiks.rotate_speed,
-                                      stop_action='hold',
-                                      ramp_up_sp=0)
-        self.turntable.wait_for_running()
-        self.turntable.wait_for_position(final_pos)
-        self.turntable.wait_for_stop()
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed), final_pos)
 
         if nb >= 1:
             for i in range(nb):
@@ -138,7 +142,7 @@ class Rubiks(object):
         # Move the arm down to hold the cube in place
         self.flipper_hold_cube()
 
-        # OVERROTATE depends on lot on Rubiks.rotate_speed
+        # OVERROTATE depends on lot on MindCuber.rotate_speed
         current_pos = self.turntable.position
         OVERROTATE = 18
         final_pos = int(135 * round((current_pos + (270 * direction * nb)) / 135.0))
@@ -147,21 +151,8 @@ class Rubiks(object):
         log.info("rotate_cube_blocked() direction %s nb %s, current pos %s, temp pos %s, final pos %s" %
                  (direction, nb, current_pos, temp_pos, final_pos))
 
-        self.turntable.run_to_abs_pos(position_sp=temp_pos,
-                                      speed_sp=Rubiks.rotate_speed,
-                                      stop_action='hold',
-                                      ramp_up_sp=0)
-        self.turntable.wait_for_running()
-        self.turntable.wait_for_position(temp_pos)
-        self.turntable.wait_for_stop()
-
-        self.turntable.run_to_abs_pos(position_sp=final_pos,
-                                      speed_sp=int(Rubiks.rotate_speed/4),
-                                      stop_action='hold',
-                                      ramp_up_sp=0)
-        self.turntable.wait_for_running()
-        self.turntable.wait_for_position(final_pos, stall_ok=True)
-        self.turntable.wait_for_stop()
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed), temp_pos)
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed/4), final_pos)
 
     def rotate_cube_blocked_1(self):
         self.rotate_cube_blocked(1, 1)
@@ -177,14 +168,11 @@ class Rubiks(object):
 
         # Push it forward so the cube is always in the same position
         # when we start the flip
-        if (current_position <= Rubiks.hold_cube_pos - 10 or
-            current_position >= Rubiks.hold_cube_pos + 10):
-            self.flipper.run_to_abs_pos(position_sp=Rubiks.hold_cube_pos,
-                                        ramp_down_sp=400,
-                                        speed_sp=speed)
-            self.flipper.wait_for_running()
-            self.flipper.wait_for_position(Rubiks.hold_cube_pos)
-            self.flipper.wait_for_stop()
+        if (current_position <= MindCuber.hold_cube_pos - 10 or
+            current_position >= MindCuber.hold_cube_pos + 10):
+
+            self.flipper.ramp_down_sp=400
+            self.flipper.on_to_position(SpeedDPS(speed), MindCuber.hold_cube_pos)
             sleep(0.05)
 
     def flipper_away(self, speed=300):
@@ -192,24 +180,16 @@ class Rubiks(object):
         Move the flipper arm out of the way
         """
         log.info("flipper_away()")
-        self.flipper.run_to_abs_pos(position_sp=0,
-                                    ramp_down_sp=400,
-                                    speed_sp=speed)
-        self.flipper.wait_for_running()
-
-        try:
-            self.flipper.wait_for_position(0)
-            self.flipper.wait_for_stop()
-        except MotorStall:
-            self.flipper.stop()
+        self.flipper.ramp_down_sp = 400
+        self.flipper.on_to_position(SpeedDPS(speed), 0)
 
     def flip(self):
         """
-        Motors will sometimes stall if you call run_to_abs_pos() multiple
+        Motors will sometimes stall if you call on_to_position() multiple
         times back to back on the same motor. To avoid this we call a 50ms
-        sleep in flipper_hold_cube() and after each run_to_abs_pos() below.
+        sleep in flipper_hold_cube() and after each on_to_position() below.
 
-        We have to sleep after the 2nd run_to_abs_pos() because sometimes
+        We have to sleep after the 2nd on_to_position() because sometimes
         flip() is called back to back.
         """
         log.info("flip()")
@@ -221,24 +201,16 @@ class Rubiks(object):
         self.flipper_hold_cube()
 
         # Grab the cube and pull back
-        self.flipper.run_to_abs_pos(position_sp=190,
-                                    ramp_up_sp=200,
-                                    ramp_down_sp=0,
-                                    speed_sp=self.flip_speed)
-        self.flipper.wait_for_running()
-        self.flipper.wait_for_position(190)
-        self.flipper.wait_for_stop()
+        self.flipper.ramp_up_sp = 200
+        self.flipper.ramp_down_sp = 0
+        self.flipper.on_to_position(SpeedDPS(self.flip_speed), 190)
         sleep(0.05)
 
         # At this point the cube is at an angle, push it forward to
         # drop it back down in the turntable
-        self.flipper.run_to_abs_pos(position_sp=Rubiks.hold_cube_pos,
-                                    ramp_up_sp=200,
-                                    ramp_down_sp=400,
-                                    speed_sp=self.flip_speed_push)
-        self.flipper.wait_for_running()
-        self.flipper.wait_for_position(Rubiks.hold_cube_pos)
-        self.flipper.wait_for_stop()
+        self.flipper.ramp_up_sp = 200
+        self.flipper.ramp_down_sp = 400
+        self.flipper.on_to_position(SpeedDPS(self.flip_speed_push), MindCuber.hold_cube_pos)
         sleep(0.05)
 
         transformation = [2, 4, 1, 3, 0, 5]
@@ -246,12 +218,7 @@ class Rubiks(object):
 
     def colorarm_middle(self):
         log.info("colorarm_middle()")
-        self.colorarm.run_to_abs_pos(position_sp=-750,
-                                     speed_sp=600,
-                                     stop_action='hold')
-        self.colorarm.wait_for_running()
-        self.colorarm.wait_for_position(-750)
-        self.colorarm.wait_for_stop()
+        self.colorarm.on_to_position(SpeedDPS(600), -750)
 
     def colorarm_corner(self, square_index):
         log.info("colorarm_corner(%d)" % square_index)
@@ -268,9 +235,7 @@ class Rubiks(object):
         else:
             raise ScanError("colorarm_corner was given unsupported square_index %d" % square_index)
 
-        self.colorarm.run_to_abs_pos(position_sp=position_target,
-                                     speed_sp=600,
-                                     stop_action='hold')
+        self.colorarm.on_to_position(SpeedDPS(600), position_target)
 
     def colorarm_edge(self, square_index):
         log.info("colorarm_edge(%d)" % square_index)
@@ -287,71 +252,15 @@ class Rubiks(object):
         else:
             raise ScanError("colorarm_edge was given unsupported square_index %d" % square_index)
 
-        self.colorarm.run_to_abs_pos(position_sp=position_target,
-                                     speed_sp=600,
-                                     stop_action='hold')
+        self.colorarm.on_to_position(SpeedDPS(600), position_target)
 
     def colorarm_remove(self):
         log.info("colorarm_remove()")
-        self.colorarm.run_to_abs_pos(position_sp=0,
-                                     speed_sp=600)
-        self.colorarm.wait_for_running()
-        try:
-            self.colorarm.wait_for_position(0)
-            self.colorarm.wait_for_stop()
-        except MotorStall:
-            self.colorarm.stop()
+        self.colorarm.on_to_position(SpeedDPS(600), 0)
 
     def colorarm_remove_halfway(self):
         log.info("colorarm_remove_halfway()")
-        self.colorarm.run_to_abs_pos(position_sp=-400,
-                                     speed_sp=600)
-        self.colorarm.wait_for_running()
-        self.colorarm.wait_for_position(-400)
-        self.colorarm.wait_for_stop()
-
-    def scan_middle(self, face_number):
-        log.info("scan_middle() %d/6" % face_number)
-
-        if self.flipper.position > 35:
-            self.flipper_away()
-
-        self.colorarm_middle()
-        log.info(self.color_sensor.rgb())
-        self.colorarm_remove_halfway()
-
-    def scan_middles(self):
-        """
-        Used once to get the RGB values of the middle squares to
-        populate the crayola_colors in rubiks_rgb_solver.py
-        """
-        log.info("scan_middle()")
-        self.colors = {}
-        self.k = 0
-        self.scan_middle(1)
-        raw_input('Paused')
-
-        self.flip()
-        self.scan_middle(2)
-        raw_input('Paused')
-
-        self.flip()
-        self.scan_middle(3)
-        raw_input('Paused')
-
-        self.rotate_cube(-1, 1)
-        self.flip()
-        self.scan_middle(4)
-        raw_input('Paused')
-
-        self.rotate_cube(1, 1)
-        self.flip()
-        self.scan_middle(5)
-        raw_input('Paused')
-
-        self.flip()
-        self.scan_middle(6)
-        raw_input('Paused')
+        self.colorarm.on_to_position(SpeedDPS(600), -400)
 
     def scan_face(self, face_number):
         log.info("scan_face() %d/6" % face_number)
@@ -360,10 +269,10 @@ class Rubiks(object):
             return
 
         if self.flipper.position > 35:
-            self.flipper_away()
+            self.flipper_away(100)
 
         self.colorarm_middle()
-        self.colors[int(Rubiks.scan_order[self.k])] = tuple(self.color_sensor.rgb())
+        self.colors[int(MindCuber.scan_order[self.k])] = self.color_sensor.rgb
 
         self.k += 1
         i = 1
@@ -371,19 +280,15 @@ class Rubiks(object):
 
         # The gear ratio is 3:1 so 1080 is one full rotation
         self.turntable.reset()
-        self.turntable.run_to_abs_pos(position_sp=1080,
-                                      speed_sp=Rubiks.rotate_speed,
-                                      stop_action='hold')
+        self.turntable.on_to_position(SpeedDPS(MindCuber.rotate_speed), 1080, block=False)
+        self.turntable.wait_until('running')
 
         while True:
-            current_position = self.turntable.position
 
             # 135 is 1/8 of full rotation
-            if current_position >= (i * 135):
-                current_color = tuple(self.color_sensor.rgb())
-                self.colors[int(Rubiks.scan_order[self.k])] = current_color
-                # log.info("%s: i %d, current_position %d, current_color %s" %
-                #          (self.turntable, i, current_position, current_color))
+            if self.turntable.position >= (i * 135):
+                current_color = self.color_sensor.rgb
+                self.colors[int(MindCuber.scan_order[self.k])] = current_color
 
                 i += 1
                 self.k += 1
@@ -411,8 +316,8 @@ class Rubiks(object):
         if i < 9:
             raise ScanError('i is %d..should be 9' % i)
 
-        self.turntable.wait_for_position(1080)
-        self.turntable.stop()
+        self.turntable.wait_until_not_moving()
+        self.turntable.off()
         self.turntable.reset()
         log.info("\n")
 
@@ -459,7 +364,7 @@ class Rubiks(object):
         self.flip()
         self.flipper_away()
         self.rotate_cube(1, 1)
-        raw_input('Paused')
+        input('Paused')
         '''
 
     def move(self, face_down):
@@ -514,7 +419,7 @@ class Rubiks(object):
 
     def resolve(self):
 
-        if rub.shutdown:
+        if self.shutdown:
             return
 
         cmd = ['kociemba', ''.join(map(str, self.cube_kociemba))]
@@ -575,21 +480,21 @@ if __name__ == '__main__':
     logging.addLevelName(logging.ERROR, "\033[91m   %s\033[0m" % logging.getLevelName(logging.ERROR))
     logging.addLevelName(logging.WARNING, "\033[91m %s\033[0m" % logging.getLevelName(logging.WARNING))
 
-    rub = Rubiks()
+    mcube = MindCuber()
 
     try:
-        rub.wait_for_cube_insert()
+        mcube.wait_for_cube_insert()
 
         # Push the cube to the right so that it is in the expected
         # position when we begin scanning
-        rub.flipper_hold_cube(100)
-        rub.flipper_away(100)
+        mcube.flipper_hold_cube(100)
+        mcube.flipper_away(100)
 
-        rub.scan()
-        rub.resolve()
-        rub.shutdown_robot()
+        mcube.scan()
+        mcube.resolve()
+        mcube.shutdown_robot()
 
     except Exception as e:
         log.exception(e)
-        rub.shutdown_robot()
+        mcube.shutdown_robot()
         sys.exit(1)
