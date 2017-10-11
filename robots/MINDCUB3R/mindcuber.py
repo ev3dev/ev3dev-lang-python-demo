@@ -221,34 +221,48 @@ class MindCuber(object):
         self.colorarm.on_to_position(SpeedDPS(600), -750)
 
     def colorarm_corner(self, square_index):
+        """
+        The lower the number the closer to the center
+        """
         log.info("colorarm_corner(%d)" % square_index)
         position_target = -580
 
         if square_index == 1:
-            position_target += 20
+            position_target -= 10
+
         elif square_index == 3:
-            pass
+            position_target -= 30
+
         elif square_index == 5:
             position_target -= 20
+
         elif square_index == 7:
             pass
+
         else:
             raise ScanError("colorarm_corner was given unsupported square_index %d" % square_index)
 
         self.colorarm.on_to_position(SpeedDPS(600), position_target)
 
     def colorarm_edge(self, square_index):
+        """
+        The lower the number the closer to the center
+        """
         log.info("colorarm_edge(%d)" % square_index)
         position_target = -640
 
         if square_index == 2:
-            pass
-        elif square_index == 4:
             position_target -= 20
+
+        elif square_index == 4:
+            position_target -= 40
+
         elif square_index == 6:
             position_target -= 20
+
         elif square_index == 8:
             pass
+
         else:
             raise ScanError("colorarm_edge was given unsupported square_index %d" % square_index)
 
@@ -276,6 +290,7 @@ class MindCuber(object):
 
         self.k += 1
         i = 1
+        target_pos = 115
         self.colorarm_corner(i)
 
         # The gear ratio is 3:1 so 1080 is one full rotation
@@ -286,7 +301,7 @@ class MindCuber(object):
         while True:
 
             # 135 is 1/8 of full rotation
-            if self.turntable.position >= (i * 135):
+            if self.turntable.position >= target_pos:
                 current_color = self.color_sensor.rgb
                 self.colors[int(MindCuber.scan_order[self.k])] = current_color
 
@@ -307,8 +322,23 @@ class MindCuber(object):
 
                 elif i % 2:
                     self.colorarm_corner(i)
+
+                    if i == 1:
+                        target_pos = 115
+                    elif i == 3:
+                        target_pos = 380
+                    else:
+                        target_pos = i * 135
+
                 else:
                     self.colorarm_edge(i)
+
+                    if i == 2:
+                        target_pos = 220
+                    elif i == 8:
+                        target_pos = 1060
+                    else:
+                        target_pos = i * 135
 
             if self.shutdown:
                 return
