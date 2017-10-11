@@ -30,24 +30,27 @@
 # Whenever an obstacle is bumped, robot backs away and apologises.
 
 from time import sleep
-from ev3dev.auto import *
+from ev3dev.motor import OUTPUT_B, OUTPUT_C, LargeMotor
+from ev3dev.sensor.lego import InfraredSensor, TouchSensor
+from ev3dev.button import Button
+from ev3dev.led import Leds
+from ev3dev.sound import Sound
 
 # Connect two large motors on output ports B and C
 lmotor, rmotor = [LargeMotor(address) for address in (OUTPUT_B, OUTPUT_C)]
 
-# Check that the motors are actually connected
-assert lmotor.connected
-assert rmotor.connected
-
 # Connect touch sensor and remote control
-ts = TouchSensor();   assert ts.connected
-rc = RemoteControl(); assert rc.connected
+ts = TouchSensor()
+rc = InfraredSensor()
 
 # Initialize button handler
 button = Button()
 
 # Turn leds off
-Leds.all_off()
+leds = Leds()
+leds.all_off()
+
+spkr = Sound()
 
 def roll(motor, led_group, direction):
     """
@@ -64,19 +67,20 @@ def roll(motor, led_group, direction):
         if state:
             # Roll when button is pressed
             motor.run_forever(speed_sp=600*direction)
-            Leds.set_color(led_group, direction > 0 and Leds.GREEN or Leds.RED)
+            leds.set_color(led_group, 'GREEN')
         else:
             # Stop otherwise
             motor.stop(stop_action='brake')
-            Leds.set(led_group, brightness_pct=0)
+            leds.all_off()
 
     return on_press
 
 # Assign event handler to each of the remote buttons
-rc.on_red_up    = roll(lmotor, Leds.LEFT,   1)
-rc.on_red_down  = roll(lmotor, Leds.LEFT,  -1)
-rc.on_blue_up   = roll(rmotor, Leds.RIGHT,  1)
-rc.on_blue_down = roll(rmotor, Leds.RIGHT, -1)
+rc.on_channel1_top_left = roll(lmotor, 'LEFT',   1)
+rc.on_channel1_bottom_left = roll(lmotor, 'LEFT',  -1)
+rc.on_channel1_top_right = roll(rmotor, 'RIGHT',  1)
+rc.on_channel1_bottom_right = roll(rmotor, 'RIGHT', -1)
+print("Robot Starting")
 
 # Enter event processing loop
 while not button.any():
@@ -84,14 +88,14 @@ while not button.any():
 
     # Backup when bumped an obstacle
     if ts.is_pressed:
-        Sound.speak('Oops, excuse me!')
+        spkr.speak('Oops, excuse me!')
 
         for motor in (lmotor, rmotor):
             motor.stop(stop_action='brake')
 
         # Turn red lights on
-        for led in (Leds.LEFT, Leds.RIGHT):
-            Leds.set_color(led, Leds.RED)
+        for light in ('LEFT', 'RIGHT'):
+            leds.set_color(light, 'RED')
 
         # Run both motors backwards for 0.5 seconds
         for motor in (lmotor, rmotor):
@@ -100,6 +104,6 @@ while not button.any():
         # Wait 0.5 seconds while motors are rolling
         sleep(0.5)
 
-        Leds.all_off()
+        leds.all_off()
 
     sleep(0.01)
