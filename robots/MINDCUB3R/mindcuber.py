@@ -235,7 +235,6 @@ class MindCuber(object):
         else:
             raise ScanError("colorarm_corner was given unsupported square_index %d" % square_index)
 
-        # dwalton - block here
         self.colorarm.on_to_position(SpeedDPS(600), position_target)
 
     def colorarm_edge(self, square_index):
@@ -253,7 +252,6 @@ class MindCuber(object):
         else:
             raise ScanError("colorarm_edge was given unsupported square_index %d" % square_index)
 
-        # dwalton - block here
         self.colorarm.on_to_position(SpeedDPS(600), position_target)
 
     def colorarm_remove(self):
@@ -271,7 +269,7 @@ class MindCuber(object):
             return
 
         if self.flipper.position > 35:
-            self.flipper_away()
+            self.flipper_away(100)
 
         self.colorarm_middle()
         self.colors[int(MindCuber.scan_order[self.k])] = self.color_sensor.rgb
