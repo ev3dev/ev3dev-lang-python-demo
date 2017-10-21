@@ -5,7 +5,7 @@ developing your own code. Brief descriptions of each demo are provided below;
 you can access the full source code and some more detailed information on each
 by opening the respective folders above.
 
-To install these on your EV3, use git to clone the ev3dev-lang-python repository
+To install these on your EV3, use git to clone the ev3dev-lang-python-demo repository
 from github. Your EV3 will need Internet connectivty in order to clone the
 repository from github.
 ```
