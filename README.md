@@ -10,7 +10,7 @@ from github. Your EV3 will need Internet connectivty in order to clone the
 repository from github.
 ```
 $ sudo apt-get install git
-$ git clone https://github.com/rhempel/ev3dev-lang-python.git
+$ git clone https://github.com/ev3dev/ev3dev-lang-python-demo.git
 ```
 
 ## Running A Program
