@@ -28,7 +28,7 @@ only mention it so you know to do these things when writing your own programs.
 To run one of the demo programs from the command line, cd to the directory and
 run the program via `./PROGRAM_NAME.py`. Example:
 ```
-$ cd ev3dev-lang-python/demo/R3PTAR/
+$ cd ~/ev3dev-lang-python-demo/robots/R3PTAR/
 $ ./r3ptar.py
 ```
 ## Brickman
