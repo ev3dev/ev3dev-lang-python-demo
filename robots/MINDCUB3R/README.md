@@ -28,15 +28,20 @@ We must git clone the ev3dev-lang-python repository.  MINDCUB3R is included
 in the demo directory.
 ```
 $ cd ~/
-$ git clone https://github.com/rhempel/ev3dev-lang-python.git
-$ cd ~/ev3dev-lang-python/demo/MINDCUB3R/
+$ git clone https://github.com/ev3dev/ev3dev-lang-python-demo.git
+$ cd ~/ev3dev-lang-python-demo/robots/MINDCUB3R/
 $ kociemba DRLUUBFBRBLURRLRUBLRDDFDLFUFUFFDBRDUBRUFLLFDDBFLUBLRBD
 ```
 
 ## Running MINDCUB3R
 ```
-$ cd ~/ev3dev-lang-python/demo/MINDCUB3R/
-$ ./rubiks.py
+$ cd ~/ev3dev-lang-python-demo/robots/MINDCUB3R/
+$ ./mindcuber.py
+```
+It is also a good idea to launch white calibration every time you move robot to a different lightning.
+```
+$ cd ~/ev3dev-lang-python-demo/robots/MINDCUB3R/
+$ ./calibrate_white.py
 ```
 
 ## About kociemba
