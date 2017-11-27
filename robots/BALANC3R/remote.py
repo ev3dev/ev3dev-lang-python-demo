@@ -3,7 +3,7 @@
 
 import logging
 import time
-from ev3dev.control.GyroBalancer import GyroBalancer
+from ev3dev.control.GyroBalancer import GyroBalancer, GracefulShutdown
 from ev3dev.sensor.lego import InfraredSensor
 
 # Logging
@@ -39,7 +39,7 @@ try:
 
         time.sleep(0.01)  # Give CPU a rest
 
-except (KeyboardInterrupt, Exception) as e:
+except (GracefulShutdown, Exception) as e:
     log.exception(e)
     # Exit cleanly so that all motors are stopped
     robot.shutdown()
