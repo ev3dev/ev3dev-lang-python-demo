@@ -72,6 +72,12 @@ class with child classes for the various permutations of TRACK3R
 * TRACK3RWithClaw
 * TRACK3RWithSpinner
 
-## Differences between Home and Education sets.
+## Differences between Home and Education sets
 
-There is a nice project at [bittner/lego-mindstorms-ev3-comparison](https://github.com/bittner/lego-mindstorms-ev3-comparison) highlighting differences LEGO MINDSTORMS EV3 Home Edition (#31313) and LEGO MINDSTORMS Education EV3 (#45544).
+There is a nice project at
+[bittner/lego-mindstorms-ev3-comparison](https://github.com/bittner/lego-mindstorms-ev3-comparison)
+highlighting differences LEGO MINDSTORMS EV3 Home Edition (#31313) and LEGO
+MINDSTORMS Education EV3 (#45544). The project also provides a [comparison
+table](https://github.com/bittner/lego-mindstorms-ev3-comparison#inspiration-for-lego-ev3-robots)
+referencing the robot programs from this repository and a few others.
+    
