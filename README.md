@@ -71,3 +71,11 @@ class with child classes for the various permutations of TRACK3R
 * TRACK3RWithBallShooter
 * TRACK3RWithClaw
 * TRACK3RWithSpinner
+
+## More robot programs
+
+The [LEGO Mindstorms EV3 Comparison
+project](https://github.com/bittner/lego-mindstorms-ev3-comparison) sports a
+few other robot programs in addition. Its [comparison
+table](https://github.com/bittner/lego-mindstorms-ev3-comparison#inspiration-for-lego-ev3-robots)
+also lists programs created for other platforms than ev3dev.
