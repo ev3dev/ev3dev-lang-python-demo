@@ -1,5 +1,7 @@
 # MINDCUB3R
 
+A working fork of cavenel's original code ([original video](https://www.youtube.com/watch?v=HuKsfp19yF0)).
+
 ## Installation
 ### Installing kociemba
 The kociemba program produces a sequence of moves used to solve
