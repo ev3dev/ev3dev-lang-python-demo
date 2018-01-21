@@ -25,7 +25,7 @@ try:
     button_code = remote.value()
     while button_code != remote.TOP_LEFT:
         button_code = remote.value()
-        time.sleep(0.01)  # Give CPU a rest
+        time.sleep(0.5)  # Give CPU a rest
 
     # Move robot in a simple pattern
     robot.rotate_left(seconds=3)
@@ -35,7 +35,7 @@ try:
 
     # Wait for user to terminate program
     while True:
-        time.sleep(0.01)
+        time.sleep(0.5)
 
 except (GracefulShutdown, Exception) as e:
     log.exception(e)

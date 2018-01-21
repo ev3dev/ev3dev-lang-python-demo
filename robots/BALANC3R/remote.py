@@ -37,7 +37,7 @@ try:
         else:
             robot.stop()
 
-        time.sleep(0.01)  # Give CPU a rest
+        time.sleep(0.5)  # Give CPU a rest
 
 except (GracefulShutdown, Exception) as e:
     log.exception(e)
