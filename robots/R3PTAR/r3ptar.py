@@ -1,73 +1,135 @@
 #!/usr/bin/env python3
 
-import time
-import threading
+"""
+Implementation of R3PTAR
+"""
+
+import logging
 import signal
-import ev3dev.ev3 as ev3
+import sys
+from ev3dev.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, MediumMotor, LargeMotor
+from ev3dev.sensor.lego import InfraredSensor
+from ev3dev.sound import Sound
+from threading import Thread, Event
+from time import sleep
 
-def tail_waggler(done):
+log = logging.getLogger(__name__)
+
+
+class MonitorRemoteControl(Thread):
     """
-    This is the first thread of execution that will be responsible for waggling
-    r3ptar's tail every couple of seconds.
+    A thread to monitor R3PTAR's InfraredSensor and process signals
+    from the remote control
     """
-    m = ev3.MediumMotor(); assert m.connected
 
-    while not done.is_set():
-        m.run_timed(speed_sp=90, time_sp=1000, stop_action='coast')
-        time.sleep(1)
-        ev3.Sound.play('rattle-snake.wav').wait()
-        m.run_timed(speed_sp=-90, time_sp=1000, stop_action='coast')
-        time.sleep(2)
+    def __init__(self, parent):
+        Thread.__init__(self)
+        self.parent = parent
+        self.shutdown_event = Event()
 
-def hand_biter(done):
-    """
-    This is the second thread of execution. It will constantly poll the
-    infrared sensor for proximity info and bite anything that gets too close.
-    """
-    m = ev3.LargeMotor('outD'); assert m.connected
-    s = ev3.InfraredSensor();   assert s.connected
+    def __str__(self):
+        return "MonitorRemoteControl"
 
-    m.run_timed(speed_sp=-200, time_sp=1000, stop_action='brake')
+    def run(self):
+        STRIKE_SPEED_PCT = 40
 
-    while not done.is_set():
-        # Wait until something (a hand?!) gets too close:
-        while s.proximity > 30:
-            if done.is_set(): return
-            time.sleep(0.1)
+        while True:
 
-        # Bite it! Also, don't forget to hiss:
-        ev3.Sound.play('snake-hiss.wav')
-        m.run_timed(speed_sp=600, time_sp=500, stop_action='brake')
-        time.sleep(0.6)
-        m.run_timed(speed_sp=-200, time_sp=500, stop_action='brake')
-        time.sleep(1)
+            if self.shutdown_event.is_set():
+                log.info('%s: shutdown_event is set' % self)
+                break
 
-# The 'done' event will be used to signal the threads to stop:
-done = threading.Event()
+            #log.info("proximity: %s" % self.parent.remote.proximity)
+            if self.parent.remote.proximity < 30:
+                self.parent.speaker.play('snake-hiss.wav', Sound.PLAY_NO_WAIT_FOR_COMPLETE)
+                self.parent.strike_motor.on_for_seconds(speed_pct=STRIKE_SPEED_PCT, seconds=0.5)
+                self.parent.strike_motor.on_for_seconds(speed_pct=(STRIKE_SPEED_PCT * -1), seconds=0.5)
 
-# We also need to catch SIGINT (keyboard interrup) and SIGTERM (termination
-# signal from brickman) and exit gracefully:
-def signal_handler(signal, frame):
-    done.set()
+            self.parent.remote.process()
+            sleep(0.01)
 
-signal.signal(signal.SIGINT,  signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
 
-# Now that we have the worker functions defined, lets run those in separate
-# threads.
-tail = threading.Thread(target=tail_waggler, args=(done,))
-head = threading.Thread(target=hand_biter,   args=(done,))
+class R3PTAR(object):
 
-tail.start()
-head.start()
+    def __init__(self,
+                 drive_motor_port=OUTPUT_B,
+                 strike_motor_port=OUTPUT_D,
+                 steer_motor_port=OUTPUT_A,
+                 drive_speed_pct=60):
 
-# The main thread will wait for the 'back' button to be pressed.  When that
-# happens, it will signal the worker threads to stop and wait for their
-# completion.
-btn = ev3.Button()
-while not btn.backspace and not done.is_set():
-    time.sleep(0.1)
+        self.drive_motor = LargeMotor(drive_motor_port)
+        self.strike_motor = LargeMotor(strike_motor_port)
+        self.steer_motor = MediumMotor(steer_motor_port)
+        self.speaker = Sound()
+        STEER_SPEED_PCT = 30
 
-done.set()
-tail.join()
-head.join()
+        self.remote = InfraredSensor()
+        self.remote.on_channel1_top_left = self.make_move(self.drive_motor, drive_speed_pct)
+        self.remote.on_channel1_bottom_left = self.make_move(self.drive_motor, drive_speed_pct * -1)
+        self.remote.on_channel1_top_right = self.make_move(self.steer_motor, STEER_SPEED_PCT)
+        self.remote.on_channel1_bottom_right = self.make_move(self.steer_motor, STEER_SPEED_PCT * -1)
+
+        self.shutdown_event = Event()
+        self.mrc = MonitorRemoteControl(self)
+
+        # Register our signal_term_handler() to be called if the user sends
+        # a 'kill' to this process or does a Ctrl-C from the command line
+        signal.signal(signal.SIGTERM, self.signal_term_handler)
+        signal.signal(signal.SIGINT, self.signal_int_handler)
+
+    def make_move(self, motor, speed_pct):
+        def move(state):
+            if state:
+                motor.on(speed_pct)
+            else:
+                motor.stop()
+        return move
+
+    def shutdown_robot(self):
+
+        if self.shutdown_event.is_set():
+            return
+
+        self.shutdown_event.set()
+        log.info('shutting down')
+        self.mrc.shutdown_event.set()
+
+        self.remote.on_channel1_top_left = None
+        self.remote.on_channel1_bottom_left = None
+        self.remote.on_channel1_top_right = None
+        self.remote.on_channel1_bottom_right = None
+
+        self.drive_motor.off(brake=False)
+        self.strike_motor.off(brake=False)
+        self.steer_motor.off(brake=False)
+
+        self.mrc.join()
+
+    def signal_term_handler(self, signal, frame):
+        log.info('Caught SIGTERM')
+        self.shutdown_robot()
+
+    def signal_int_handler(self, signal, frame):
+        log.info('Caught SIGINT')
+        self.shutdown_robot()
+
+    def main(self):
+        self.mrc.start()
+        self.shutdown_event.wait()
+
+
+if __name__ == '__main__':
+
+    # Change level to logging.DEBUG for more details
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(levelname)5s %(filename)s: %(message)s")
+    log = logging.getLogger(__name__)
+
+    # Color the errors and warnings in red
+    logging.addLevelName(logging.ERROR, "\033[91m  %s\033[0m" % logging.getLevelName(logging.ERROR))
+    logging.addLevelName(logging.WARNING, "\033[91m%s\033[0m" % logging.getLevelName(logging.WARNING))
+
+    log.info("Starting R3PTAR")
+    snake = R3PTAR()
+    snake.main()
+    log.info("Exiting R3PTAR")
