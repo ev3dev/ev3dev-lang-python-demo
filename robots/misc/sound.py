@@ -29,7 +29,7 @@
 from textwrap import dedent
 import os
 
-from ev3dev.ev3 import Sound
+from ev3dev2.sound import Sound
 
 _HERE = os.path.dirname(__file__)
 
@@ -39,7 +39,9 @@ print(dedent("""
     far away...
 """))
 
-Sound.play_song((
+speaker = Sound()
+
+speaker.play_song((
     ('D4', 'e3'),
     ('D4', 'e3'),
     ('D4', 'e3'),
@@ -59,8 +61,8 @@ Sound.play_song((
     ('B4', 'e3'),
     ('C5', 'e3'),
     ('A4', 'h.'),
-)).wait()
+))
 
-Sound.play(os.path.join(_HERE, 'snd/r2d2.wav')).wait()
+speaker.play(os.path.join(_HERE, 'snd/r2d2.wav'))
 
-Sound.speak("Luke, I am your father").wait()
+#speaker.speak("Luke, I am your father")

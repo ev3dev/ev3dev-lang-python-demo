@@ -3,8 +3,8 @@
 
 import logging
 import time
-from ev3dev.control.GyroBalancer import GyroBalancer, GracefulShutdown
-from ev3dev.sensor.lego import InfraredSensor
+from ev3dev2.control.GyroBalancer import GyroBalancer, GracefulShutdown
+from ev3dev2.sensor.lego import InfraredSensor
 
 # Logging
 logging.basicConfig(level=logging.DEBUG,

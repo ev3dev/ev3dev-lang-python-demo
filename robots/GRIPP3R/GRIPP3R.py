@@ -17,9 +17,9 @@ Implementation of GRIPP3R
 import logging
 import signal
 import sys
-from ev3dev.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
-from ev3dev.control.rc_tank import RemoteControlledTank
-from ev3dev.sensor.lego import TouchSensor
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
+from ev3dev2.control.rc_tank import RemoteControlledTank
+from ev3dev2.sensor.lego import TouchSensor
 from threading import Thread, Event
 from time import sleep
 
