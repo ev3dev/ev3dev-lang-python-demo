@@ -34,11 +34,11 @@
 from time   import sleep
 from random import choice, randint
 
-from ev3dev.motor import OUTPUT_B, OUTPUT_C, LargeMotor
-from ev3dev.sensor.lego import InfraredSensor, TouchSensor
-from ev3dev.button import Button
-from ev3dev.led import Leds
-from ev3dev.sound import Sound
+from ev3dev2.motor import OUTPUT_B, OUTPUT_C, LargeMotor
+from ev3dev2.sensor.lego import InfraredSensor, TouchSensor
+from ev3dev2.button import Button
+from ev3dev2.led import Leds
+from ev3dev2.sound import Sound
 
 # Connect two large motors on output ports B and C:
 motors = [LargeMotor(address) for address in (OUTPUT_B, OUTPUT_C)]

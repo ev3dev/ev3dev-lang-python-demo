@@ -2,8 +2,8 @@
 
 import logging
 import sys
-from ev3dev.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
-from ev3dev.control.webserver import WebControlledTank
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
+from ev3dev2.control.webserver import WebControlledTank
 
 
 class EV3D4WebControlled(WebControlledTank):

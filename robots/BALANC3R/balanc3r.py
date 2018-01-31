@@ -2,8 +2,8 @@
 """Make BALANC3R robot stay upright and move in response to the remote."""
 
 import logging
-from ev3dev.control.GyroBalancer import GyroBalancer
-from ev3dev.motor import OUTPUT_A, OUTPUT_D
+from ev3dev2.control.GyroBalancer import GyroBalancer
+from ev3dev2.motor import OUTPUT_A, OUTPUT_D
 
 
 class BALANC3R(GyroBalancer):

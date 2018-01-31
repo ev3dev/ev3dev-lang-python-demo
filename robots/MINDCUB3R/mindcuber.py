@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from ev3dev.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedDPS
-from ev3dev.sensor.lego import ColorSensor, InfraredSensor
+from ev3dev2.motor import LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C, SpeedDPS
+from ev3dev2.sensor.lego import ColorSensor, InfraredSensor
 from pprint import pformat
 from rubikscolorresolver import RubiksColorSolverGeneric
 from subprocess import check_output

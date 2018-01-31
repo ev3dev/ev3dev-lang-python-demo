@@ -2,8 +2,8 @@
 
 import logging
 import sys
-from ev3dev.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
-from ev3dev.control.rc_tank import RemoteControlledTank
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, MediumMotor
+from ev3dev2.control.rc_tank import RemoteControlledTank
 
 log = logging.getLogger(__name__)
 
