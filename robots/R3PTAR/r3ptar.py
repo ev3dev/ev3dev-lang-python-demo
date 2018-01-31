@@ -7,9 +7,9 @@ Implementation of R3PTAR
 import logging
 import signal
 import sys
-from ev3dev.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, MediumMotor, LargeMotor
-from ev3dev.sensor.lego import InfraredSensor
-from ev3dev.sound import Sound
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B, OUTPUT_C, OUTPUT_D, MediumMotor, LargeMotor
+from ev3dev2.sensor.lego import InfraredSensor
+from ev3dev2.sound import Sound
 from threading import Thread, Event
 from time import sleep
 
