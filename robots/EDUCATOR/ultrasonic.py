@@ -6,8 +6,9 @@ This script is a simple demonstration of the ultrasonic sensor and medium
 motor.
 """
 
-from ev3dev.motor import MoveSteering, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C
-from ev3dev.sensor.lego import UltrasonicSensor
+from ev3dev2.motor import (
+    MoveSteering, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C)
+from ev3dev2.sensor.lego import UltrasonicSensor
 from time import sleep
 
 motor_pair = MoveSteering(OUTPUT_B, OUTPUT_C)

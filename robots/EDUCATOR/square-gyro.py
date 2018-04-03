@@ -5,8 +5,8 @@ Move robot in a square path using the Gyro sensor.
 This script is a simple demonstration of turning using the Gyro sensor.
 """
 
-from ev3dev.motor import MoveSteering, OUTPUT_B, OUTPUT_C
-from ev3dev.sensor.lego import GyroSensor
+from ev3dev2.motor import MoveSteering, OUTPUT_B, OUTPUT_C
+from ev3dev2.sensor.lego import GyroSensor
 
 
 motor_pair = MoveSteering(OUTPUT_B, OUTPUT_C)

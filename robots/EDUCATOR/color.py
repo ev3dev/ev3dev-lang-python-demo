@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Make robot say whatever color it observes with the color sensor."""
 
-from ev3dev.sensor.lego import ColorSensor
+from ev3dev2.sensor.lego import ColorSensor
 from time import sleep
-from ev3dev.sound import Sound
+from ev3dev2.sound import Sound
 
 color_sensor = ColorSensor()
 sound = Sound()

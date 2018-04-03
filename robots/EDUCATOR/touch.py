@@ -5,8 +5,8 @@ Reverse robot if bumps into wall.
 This script is a simple demonstration of the touch sensor.
 """
 
-from ev3dev.motor import MoveSteering, OUTPUT_B, OUTPUT_C
-from ev3dev.sensor.lego import TouchSensor
+from ev3dev2.motor import MoveSteering, OUTPUT_B, OUTPUT_C
+from ev3dev2.sensor.lego import TouchSensor
 
 motor_pair = MoveSteering(OUTPUT_B, OUTPUT_C)
 touch_sensor = TouchSensor()

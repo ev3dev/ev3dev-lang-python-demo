@@ -5,7 +5,7 @@ Move robot in a square path without using the Gyro sensor.
 This script is a simple demonstration of moving forward and turning.
 """
 
-from ev3dev.motor import MoveSteering, OUTPUT_B, OUTPUT_C
+from ev3dev2.motor import MoveSteering, OUTPUT_B, OUTPUT_C
 
 motor_pair = MoveSteering(OUTPUT_B, OUTPUT_C)
 
