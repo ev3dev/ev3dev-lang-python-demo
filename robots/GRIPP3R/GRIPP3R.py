@@ -141,17 +141,17 @@ class Gripper(RemoteControlledTank):
             # the act of opening the claw presses the TouchSensor so we must
             # tell mts to ignore that press.
             self.mts.monitor_ts.clear()
-            self.medium_motor.on(speed_pct=self.CLAW_SPEED_PCT * -1, block=True)
+            self.medium_motor.on(speed=self.CLAW_SPEED_PCT * -1, block=True)
             self.medium_motor.off()
             self.medium_motor.reset()
-            self.medium_motor.on_to_position(speed_pct=self.CLAW_SPEED_PCT,
+            self.medium_motor.on_to_position(speed=self.CLAW_SPEED_PCT,
                                              position=self.CLAW_DEGREES_OPEN,
                                              brake=False, block=True)
             self.mts.monitor_ts.set()
 
     def claw_close(self, state):
         if state:
-            self.medium_motor.on_to_position(speed_pct=self.CLAW_SPEED_PCT,
+            self.medium_motor.on_to_position(speed=self.CLAW_SPEED_PCT,
                                              position=self.CLAW_DEGREES_CLOSE)
 
     def main(self):
