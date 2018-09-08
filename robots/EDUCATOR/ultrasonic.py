@@ -16,7 +16,7 @@ medium_motor = MediumMotor(OUTPUT_A)
 ultrasonic_sensor = UltrasonicSensor()
 
 # Start robot moving forward
-motor_pair.on(steering=0, speed_pct=10)
+motor_pair.on(steering=0, speed=10)
 
 # Wait until robot less than 3.5cm from cuboid
 while ultrasonic_sensor.distance_centimeters > 3.5:
@@ -26,13 +26,13 @@ while ultrasonic_sensor.distance_centimeters > 3.5:
 motor_pair.off()
 
 # Lower robot arm over cuboid
-medium_motor.on_for_degrees(speed_pct=-10, degrees=90)
+medium_motor.on_for_degrees(speed=-10, degrees=90)
 
 # Drag cuboid backwards for 2 seconds
-motor_pair.on_for_seconds(steering=0, speed_pct=-20, seconds=2)
+motor_pair.on_for_seconds(steering=0, speed=-20, seconds=2)
 
 # Raise robot arm
-medium_motor.on_for_degrees(speed_pct=10, degrees=90)
+medium_motor.on_for_degrees(speed=10, degrees=90)
 
 # Move robot away from cuboid
-motor_pair.on_for_seconds(steering=0, speed_pct=-20, seconds=2)
+motor_pair.on_for_seconds(steering=0, speed=-20, seconds=2)

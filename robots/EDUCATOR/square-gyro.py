@@ -16,10 +16,10 @@ gyro.mode = GyroSensor.MODE_GYRO_ANG
 for i in range(4):
 
     # Move robot forward for 3 seconds
-    motor_pair.on_for_seconds(steering=0, speed_pct=50, seconds=3)
+    motor_pair.on_for_seconds(steering=0, speed=50, seconds=3)
 
     # Spin robot to the left
-    motor_pair.on(steering=-100, speed_pct=5)
+    motor_pair.on(steering=-100, speed=5)
 
     # Wait until angle changed by 90 degrees
     gyro.wait_until_angle_changed_by(90)

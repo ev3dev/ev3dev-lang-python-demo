@@ -42,8 +42,8 @@ class MonitorRemoteControl(Thread):
             #log.info("proximity: %s" % self.parent.remote.proximity)
             if self.parent.remote.proximity < 30:
                 self.parent.speaker.play('snake-hiss.wav', Sound.PLAY_NO_WAIT_FOR_COMPLETE)
-                self.parent.strike_motor.on_for_seconds(speed_pct=STRIKE_SPEED_PCT, seconds=0.5)
-                self.parent.strike_motor.on_for_seconds(speed_pct=(STRIKE_SPEED_PCT * -1), seconds=0.5)
+                self.parent.strike_motor.on_for_seconds(speed=STRIKE_SPEED_PCT, seconds=0.5)
+                self.parent.strike_motor.on_for_seconds(speed=(STRIKE_SPEED_PCT * -1), seconds=0.5)
 
             self.parent.remote.process()
             sleep(0.01)
@@ -77,10 +77,10 @@ class R3PTAR(object):
         signal.signal(signal.SIGTERM, self.signal_term_handler)
         signal.signal(signal.SIGINT, self.signal_int_handler)
 
-    def make_move(self, motor, speed_pct):
+    def make_move(self, motor, speed):
         def move(state):
             if state:
-                motor.on(speed_pct)
+                motor.on(speed)
             else:
                 motor.stop()
         return move
