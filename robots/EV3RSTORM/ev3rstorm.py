@@ -49,15 +49,6 @@ class ev3rstorm:
 
         self.screen = ev3.Screen()
 
-        # Check if everything is attached
-        check(self.lm.connected, 'My left leg is missing!')
-        check(self.rm.connected, 'Right leg is not found!')
-        check(self.mm.connected, 'My left arm is not connected!')
-
-        check(self.ir.connected, 'My eyes, I can not see!')
-        check(self.ts.connected, 'Touch sensor is not attached!')
-        check(self.cs.connected, 'Color sensor is not responding!')
-
         # Reset the motors
         for m in (self.lm, self.rm, self.mm):
             m.reset()
