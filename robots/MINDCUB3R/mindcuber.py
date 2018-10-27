@@ -68,9 +68,6 @@ class MindCuber(object):
     def init_motors(self):
 
         for x in (self.flipper, self.turntable, self.colorarm):
-            if not x.connected:
-                log.error("%s is not connected" % x)
-                sys.exit(1)
             x.reset()
 
         log.info("Initialize flipper %s" % self.flipper)

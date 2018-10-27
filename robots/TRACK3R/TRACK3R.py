@@ -19,11 +19,6 @@ class TRACK3R(RemoteControlledTank):
     def __init__(self, medium_motor, left_motor, right_motor):
         RemoteControlledTank.__init__(self, left_motor, right_motor)
         self.medium_motor = MediumMotor(medium_motor)
-
-        if not self.medium_motor.connected:
-            log.error("%s is not connected" % self.medium_motor)
-            sys.exit(1)
-
         self.medium_motor.reset()
 
 
