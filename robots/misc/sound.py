@@ -63,6 +63,6 @@ speaker.play_song((
     ('A4', 'h.'),
 ))
 
-speaker.play(os.path.join(_HERE, 'snd/r2d2.wav'))
+speaker.play_file(os.path.join(_HERE, 'snd/r2d2.wav'))
 
 #speaker.speak("Luke, I am your father")
