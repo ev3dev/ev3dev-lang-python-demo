@@ -38,3 +38,5 @@ while True:
         m.on(SpeedPercent(30))
     else:
         m.on(SpeedPercent(-30))
+
+    sleep(0.05)
