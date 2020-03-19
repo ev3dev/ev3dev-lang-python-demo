@@ -2,7 +2,9 @@
 
 """
 The Brickpi3 doesn't support auto-detecting motors and sensors. To use devices
-connected to the LEGO ports, you must specify what type of device it is.
+connected to the input ports, you must specify what type of device it is.
+Output ports are pre-configured as NXT Large motors and do not need to be
+configured manually.
 """
 
 from time import sleep
@@ -17,12 +19,6 @@ p1 = LegoPort(INPUT_1)
 p1.mode = 'ev3-uart'
 # http://docs.ev3dev.org/projects/lego-linux-drivers/en/ev3dev-stretch/sensors.html#supported-sensors
 p1.set_device = 'lego-ev3-us'
-
-pA = LegoPort(OUTPUT_A)
-# http://docs.ev3dev.org/projects/lego-linux-drivers/en/ev3dev-stretch/brickpi3.html#brickpi3-out-port-modes
-pA.mode = 'tacho-motor'
-# http://docs.ev3dev.org/projects/lego-linux-drivers/en/ev3dev-stretch/motors.html#supported-motors
-pA.set_device = 'lego-ev3-l-motor'
 
 # allow for some time to load the new drivers
 sleep(0.5)
