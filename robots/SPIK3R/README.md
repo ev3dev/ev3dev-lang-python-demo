@@ -8,3 +8,5 @@ Control SPIK3R with as follows:
 - Make SPIK3R turn right by pressing the IR Remote Control's Right Up button
 - Make SPIK3R sting by pressing the IR Remote Control's Beacon button
 - Make SPIKER pinch by pressing the Touch Sensor (please do connect one to enable this)
+
+The build instructions may be found at the official LEGO MINDSTROMS site [here](https://www.lego.com/cdn/cs/set/assets/blt7dca5180ea66ea5e/31313_SPIK3R_2016.pdf).
