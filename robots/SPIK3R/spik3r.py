@@ -62,7 +62,7 @@ class Spik3r:
                 stop_action=Motor.STOP_ACTION_HOLD)
             self.sting_motor.wait_while(Motor.STATE_RUNNING)
 
-            self.speaker.play(wav_file='/home/robot/sound/Blip 3.wav').wait()
+            self.speaker.play(wav_file='Blip 3.wav').wait()
 
             self.sting_motor.run_timed(
                 speed_sp=-1000,
