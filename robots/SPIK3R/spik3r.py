@@ -69,7 +69,7 @@ class Spik3r:
                 block=False)
 
             self.speaker.play_file(
-                wav_file='/home/robot/sound/Blip 3.wav',
+                wav_file='Blip 3.wav',
                 volume=100,
                 play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
 
