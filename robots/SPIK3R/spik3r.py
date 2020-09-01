@@ -25,7 +25,6 @@ class Spik3r:
         self.touch_sensor = TouchSensor(address=touch_sensor_port)
 
         self.speaker = Sound()
-                 
 
     def snap_claw_if_touched(self):
         if self.touch_sensor.is_pressed:
@@ -40,7 +39,6 @@ class Spik3r:
                 seconds=0.3,
                 brake=True,
                 block=True)
-
 
     def move_by_ir_beacon(self):
         if self.ir_sensor.top_left(channel=self.ir_beacon_channel) and \
@@ -58,7 +56,6 @@ class Spik3r:
 
         else:
             self.move_motor.off(brake=False)
-
 
     def sting_by_ir_beacon(self):
         if self.ir_sensor.beacon(channel=self.ir_beacon_channel):
@@ -88,7 +85,6 @@ class Spik3r:
             while self.ir_sensor.beacon(channel=self.ir_beacon_channel):
                 pass
 
-
     def main(self):
         while True:
             self.snap_claw_if_touched()
@@ -98,5 +94,4 @@ class Spik3r:
 
 if __name__ == '__main__':
     SPIK3R = Spik3r()
-
     SPIK3R.main()
