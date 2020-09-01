@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-from ev3dev.ev3 import ( 
+from ev3dev.ev3 import (
     Motor, LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_D,
     TouchSensor, InfraredSensor, RemoteControl, INPUT_1, INPUT_4,
     Sound
@@ -20,13 +20,14 @@ class Spik3r:
         self.move_motor = LargeMotor(address=move_motor_port)
         self.sting_motor = LargeMotor(address=sting_motor_port)
 
-        self.remote_control = RemoteControl(sensor=InfraredSensor(address=ir_sensor_port),
-                                            channel=ir_beacon_channel)
+        self.remote_control = \
+            RemoteControl(
+                sensor=InfraredSensor(address=ir_sensor_port),
+                channel=ir_beacon_channel)
 
         self.touch_sensor = TouchSensor(address=touch_sensor_port)
 
         self.speaker = Sound()
-
 
     def snap_claw_if_touched(self):
         if self.touch_sensor.is_pressed:
@@ -42,7 +43,6 @@ class Spik3r:
                 stop_action=Motor.STOP_ACTION_HOLD)
             self.claw_motor.wait_while(Motor.STATE_RUNNING)
 
-                    
     def move_by_ir_beacon(self):
         if self.remote_control.red_up and self.remote_control.blue_up:
             self.move_motor.run_forever(speed_sp=1000)
@@ -53,7 +53,6 @@ class Spik3r:
         else:
             self.move_motor.stop(stop_action=Motor.STOP_ACTION_COAST)
 
-    
     def sting_by_ir_beacon(self):
         if self.remote_control.beacon:
             self.sting_motor.run_to_rel_pos(
@@ -79,7 +78,6 @@ class Spik3r:
             while self.remote_control.beacon:
                 pass
 
-
     def main(self):
         while True:
             self.snap_claw_if_touched()
@@ -89,5 +87,4 @@ class Spik3r:
 
 if __name__ == '__main__':
     SPIK3R = Spik3r()
-
     SPIK3R.main()

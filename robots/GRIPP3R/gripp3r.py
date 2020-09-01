@@ -2,8 +2,8 @@
 
 
 from ev3dev.ev3 import (
-    Motor, LargeMotor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C,
-    TouchSensor, InfraredSensor, RemoteControl, INPUT_1, INPUT_4,
+    Motor, MediumMotor, OUTPUT_A, OUTPUT_B, OUTPUT_C,
+    TouchSensor, INPUT_1, INPUT_4,
     Sound
 )
 from ev3dev.helper import RemoteControlledTank
@@ -28,7 +28,6 @@ class Gripp3r(RemoteControlledTank):
 
         self.speaker = Sound()
 
-
     def grip_or_release_by_ir_beacon(self):
         while True:
             if self.remote.beacon:
@@ -48,13 +47,12 @@ class Gripp3r(RemoteControlledTank):
 
                     while not self.touch_sensor.is_pressed:
                         pass
-            
+
                     self.grip_motor.stop(stop_action=Motor.STOP_ACTION_BRAKE)
 
                 while self.remote.beacon:
                     pass
 
-        
     def main(self):
         self.grip_motor.run_timed(
             speed_sp=-500,
@@ -66,7 +64,7 @@ class Gripp3r(RemoteControlledTank):
                 daemon=True).start()
 
         super().main()
-            
+
 
 if __name__ == '__main__':
     GRIPP3R = Gripp3r()
