@@ -67,7 +67,7 @@ class Dinor3x:
             self.speaker.speak(
                 text='RUN!',
                 volume=100,
-                play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
+                play_type=Sound.PLAY_NO_WAIT_FOR_COMPLETE)
             self.walk_speed = self.FAST_WALK_SPEED
             self.walk(speed=self.walk_speed)
 
@@ -75,7 +75,7 @@ class Dinor3x:
             self.speaker.speak(
                 text='Normal',
                 volume=100,
-                play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
+                play_type=Sound.PLAY_NO_WAIT_FOR_COMPLETE)
             self.walk_speed = self.NORMAL_WALK_SPEED
             self.walk(speed=self.walk_speed)
 
@@ -83,7 +83,7 @@ class Dinor3x:
             self.speaker.speak(
                 text='slow...',
                 volume=100,
-                play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
+                play_type=Sound.PLAY_NO_WAIT_FOR_COMPLETE)
             self.walk_speed = self.SLOW_WALK_SPEED
             self.walk(speed=self.walk_speed)
 
