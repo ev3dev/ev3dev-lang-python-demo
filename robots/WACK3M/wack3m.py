@@ -86,10 +86,10 @@ class Wack3m:
         self.start_up()
 
         while True:
-            self.speaker.play(wav_file='Start.wav').wait()
+            self.speaker.play(wav_file='media/Start.wav').wait()
 
             self.screen.clear()
-            self.screen.image.paste(im=Image.open('Touch sensor.bmp'))
+            self.screen.image.paste(im=Image.open('media/Touch sensor.bmp'))
             self.screen.update()
 
             self.leds.set_color(
@@ -104,7 +104,7 @@ class Wack3m:
             while not self.touch_sensor.is_pressed:
                 pass
 
-            self.speaker.play(wav_file='Go.wav').wait()
+            self.speaker.play(wav_file='media/Go.wav').wait()
 
             self.leds.set_color(
                 group=Leds.LEFT,
@@ -130,7 +130,7 @@ class Wack3m:
                     pct=1)
 
                 self.screen.clear()
-                self.screen.image.paste(im=Image.open('EV3 icon.bmp'))
+                self.screen.image.paste(im=Image.open('media/EV3 icon.bmp'))
                 self.screen.update()
 
                 sleep(uniform(0.1, 3))
@@ -147,7 +147,8 @@ class Wack3m:
                     start_time = time()
                     self.left_motor.wait_while(Motor.STATE_RUNNING)
 
-                    self.screen.image.paste(im=Image.open('Middle left.bmp'))
+                    self.screen.image.paste(
+                        im=Image.open('media/Middle left.bmp'))
                     self.screen.update()
 
                     self.left_motor.run_timed(
@@ -157,7 +158,7 @@ class Wack3m:
                     self.left_motor.wait_while(Motor.STATE_RUNNING)
 
                     proximity = self.ir_sensor.proximity
-                    while abs(self.ir_sensor.proximity - proximity) <= 2:
+                    while abs(self.ir_sensor.proximity - proximity) <= 4:
                         pass
 
                 elif which_motor == 2:
@@ -168,7 +169,7 @@ class Wack3m:
                     start_time = time()
                     self.middle_motor.wait_while(Motor.STATE_RUNNING)
 
-                    self.screen.image.paste(im=Image.open('Neutral.bmp'))
+                    self.screen.image.paste(im=Image.open('media/Neutral.bmp'))
                     self.screen.update()
 
                     self.middle_motor.run_timed(
@@ -178,7 +179,7 @@ class Wack3m:
                     self.middle_motor.wait_while(Motor.STATE_RUNNING)
 
                     proximity = self.ir_sensor.proximity
-                    while abs(self.ir_sensor.proximity - proximity) <= 3:
+                    while abs(self.ir_sensor.proximity - proximity) <= 5:
                         pass
 
                 else:
@@ -189,7 +190,8 @@ class Wack3m:
                     start_time = time()
                     self.right_motor.wait_while(Motor.STATE_RUNNING)
 
-                    self.screen.image.paste(im=Image.open('Middle right.bmp'))
+                    self.screen.image.paste(
+                        im=Image.open('media/Middle right.bmp'))
                     self.screen.update()
 
                     self.right_motor.run_timed(
@@ -199,13 +201,13 @@ class Wack3m:
                     self.right_motor.wait_while(Motor.STATE_RUNNING)
 
                     proximity = self.ir_sensor.proximity
-                    while abs(self.ir_sensor.proximity - proximity) <= 3:
+                    while abs(self.ir_sensor.proximity - proximity) <= 5:
                         pass
 
                 response_time = time() - start_time
 
                 self.screen.clear()
-                self.screen.image.paste(im=Image.open('Dizzy.bmp'))
+                self.screen.image.paste(im=Image.open('media/Dizzy.bmp'))
                 self.screen.draw.text(
                     xy=(0, 11),
                     text='Reponse Time: {:.1f}s'.format(response_time),
@@ -230,7 +232,7 @@ class Wack3m:
                     color=Leds.RED,
                     pct=1)
 
-                self.speaker.play(wav_file='Boing.wav').wait()
+                self.speaker.play(wav_file='media/Boing.wav').wait()
 
                 total_response_time += response_time
 
@@ -254,11 +256,11 @@ class Wack3m:
             self.screen.update()
 
             self.speaker.play(
-                wav_file='Fantastic.wav'
+                wav_file='media/Fantastic.wav'
                          if average_response_time <= 1
-                         else 'Good job.wav').wait()
+                         else 'media/Good job.wav').wait()
 
-            self.speaker.play(wav_file='Game over.wav').wait()
+            self.speaker.play(wav_file='media/Game over.wav').wait()
 
             self.leds.set_color(
                 group=Leds.LEFT,
