@@ -76,7 +76,7 @@ class Wack3m:
 
         while True:
             self.speaker.play_file(
-                wav_file='Start.wav',
+                wav_file='media/Start.wav',
                 volume=100,
                 play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
 
@@ -90,7 +90,7 @@ class Wack3m:
             self.touch_sensor.wait_for_pressed()
 
             self.speaker.play_file(
-                wav_file='Go.wav',
+                wav_file='media/Go.wav',
                 volume=100,
                 play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
 
@@ -133,7 +133,7 @@ class Wack3m:
                         block=True)
 
                     proximity = self.ir_sensor.proximity
-                    while abs(self.ir_sensor.proximity - proximity) <= 2:
+                    while abs(self.ir_sensor.proximity - proximity) <= 4:
                         pass
 
                 elif which_motor == 2:
@@ -152,7 +152,7 @@ class Wack3m:
                         block=True)
 
                     proximity = self.ir_sensor.proximity
-                    while abs(self.ir_sensor.proximity - proximity) <= 3:
+                    while abs(self.ir_sensor.proximity - proximity) <= 5:
                         pass
 
                 else:
@@ -171,7 +171,7 @@ class Wack3m:
                         block=True)
 
                     proximity = self.ir_sensor.proximity
-                    while abs(self.ir_sensor.proximity - proximity) <= 3:
+                    while abs(self.ir_sensor.proximity - proximity) <= 5:
                         pass
 
                 response_time = time() - start_time
@@ -191,7 +191,7 @@ class Wack3m:
                     block=True)
 
                 self.speaker.play_file(
-                    wav_file='Boing.wav',
+                    wav_file='media/Boing.wav',
                     volume=100,
                     play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
 
@@ -207,14 +207,14 @@ class Wack3m:
                 alignment='L')
 
             self.speaker.play_file(
-                wav_file='Fantastic.wav'
+                wav_file='media/Fantastic.wav'
                          if average_response_time <= 1
-                         else 'Good job.wav',
+                         else 'media/Good job.wav',
                 volume=100,
                 play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
 
             self.speaker.play_file(
-                wav_file='Game over.wav',
+                wav_file='media/Game over.wav',
                 volume=100,
                 play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
 
