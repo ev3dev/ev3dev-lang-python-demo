@@ -16,7 +16,7 @@ class EV3Game:
     N_LEVELS = 4
     N_OFFSET_DEGREES_FOR_HOLD_CUP = 60
     N_SHUFFLE_SECONDS = 15
-    
+
     def __init__(
             self,
             b_motor_port: str = OUTPUT_B, c_motor_port: str = OUTPUT_C,
