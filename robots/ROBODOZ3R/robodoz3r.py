@@ -131,7 +131,7 @@ class RoboDoz3r(RemoteControlledTank):
             self.speaker.play_file(
                 wav_file='media/Airbrake.wav',
                 volume=100,
-                play_type=Sound.PLAY_WAIT_FOR_COMPLETE)         
+                play_type=Sound.PLAY_WAIT_FOR_COMPLETE)
 
 
 if __name__ == '__main__':
