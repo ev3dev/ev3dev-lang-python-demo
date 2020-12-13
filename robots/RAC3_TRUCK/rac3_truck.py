@@ -150,14 +150,14 @@ class Rac3Truck:
             self.tank_driver.off(brake=False)
 
             self.steer_center()
-        
+
     def main(self):
         self.reset()
-
         sleep(1)
 
         while True:
             self.drive_by_ir_beacon()
+            sleep(0.01)
 
 
 if __name__ == '__main__':
