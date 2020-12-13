@@ -45,6 +45,7 @@ class Kraz3(RemoteControlledTank):
                     speed_sp=500,
                     position_sp=360,
                     stop_action=Motor.STOP_ACTION_HOLD)
+                self.wiggle_motor.wait_while(Motor.STATE_RUNNING)
 
             elif self.remote.beacon:
                 self.wiggle_motor.run_forever(speed_sp=111)
