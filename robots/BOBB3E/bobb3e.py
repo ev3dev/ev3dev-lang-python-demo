@@ -178,6 +178,8 @@ class Bobb3e:
 
                 self.lift_motor.off(brake=True)
 
+            sleep(0.01)
+
     def sound_alarm_whenever_reversing(self):
         while True:
             if self.reversing:
