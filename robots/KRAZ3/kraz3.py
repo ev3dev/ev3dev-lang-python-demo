@@ -8,8 +8,8 @@ from ev3dev.ev3 import (
 )
 from ev3dev.helper import RemoteControlledTank
 
-from random import randint
 from multiprocessing import Process
+from random import randint
 from time import sleep
 
 
