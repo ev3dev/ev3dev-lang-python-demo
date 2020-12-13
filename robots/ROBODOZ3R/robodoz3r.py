@@ -95,6 +95,7 @@ class RoboDoz3r(RemoteControlledTank):
             while not self.touch_sensor.is_pressed:
                 self.raise_or_lower_shovel_by_ir_beacon()
                 self.drive_by_ir_beacon(speed=driving_speed)
+                sleep(0.01)
 
             self.speaker.play(wav_file='media/Airbrake.wav').wait()
 
@@ -133,6 +134,8 @@ class RoboDoz3r(RemoteControlledTank):
                 else:
                     self.left_motor.run_forever(speed_sp=500)
                     self.right_motor.run_forever(speed_sp=500)
+
+                sleep(0.01)
 
             self.speaker.play(wav_file='media/Airbrake.wav').wait()
 
